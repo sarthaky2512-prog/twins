@@ -51,7 +51,7 @@ export function HomePage() {
                 />
               ) : (
                 <StudioImage
-                  src={homepage.heroImage}
+                  src={https://zdfqyjebx7trl30q.public.blob.vercel-storage.com/Create_video_for_wedding_photogr%E2%80%A6_19ebbf06.mp4}
                   alt="Bride and groom embracing at golden hour in South Australia"
                   loading="eager"
                   className="w-full h-full object-cover object-center"
