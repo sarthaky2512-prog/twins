@@ -1,0 +1,6 @@
+{
+  "name": "Twins Twins Video Pro",
+  "description": "Luxury wedding photography and cinematic wedding films studio in Angle Vale, South Australia. Capturing your love story, one beautiful moment at a time.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
