@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowDown, ArrowRight, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useStudio } from '../context/StudioContext';
 import { StudioImage } from '../components/StudioImage';
+import { resolveStudioImage } from '../lib/studioImages';
 import { ServicesSection } from '../components/ServicesSection';
 import { GallerySection } from '../components/GallerySection';
 import { VideoPortfolioSection } from '../components/VideoPortfolioSection';
@@ -13,9 +14,45 @@ import { TestimonialsSlider } from '../components/TestimonialsSlider';
 import { ContactSection } from '../components/ContactSection';
 import type { HomepageSectionConfig } from '../types/studio';
 
+const DEFAULT_HERO_VIDEO_URL =
+  'https://zdfqyjebx7trl30q.public.blob.vercel-storage.com/Create_video_for_wedding_photogr%E2%80%A6_19ebbf06.mp4';
+
 export function HomePage() {
   const { data, navigate } = useStudio();
   const { homepage, businessInfo } = data;
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false
+  );
+
+  const heroVideoSrc = homepage.heroVideoUrl || DEFAULT_HERO_VIDEO_URL;
+  const heroPosterSrc = resolveStudioImage(homepage.heroImage);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    setVideoError(false);
+    setVideoReady(false);
+  }, [heroVideoSrc]);
+
+  useEffect(() => {
+    if (!prefersReducedMotion && videoRef.current) {
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(() => {
+        // Autoplay fallback handled by poster layer if blocked
+      });
+    }
+  }, [prefersReducedMotion, heroVideoSrc]);
 
   const handleHeroCta = (href: string) => {
     if (href.startsWith('#')) {
@@ -38,26 +75,40 @@ export function HomePage() {
             key={sec.id}
             className="relative min-h-screen flex items-end lg:items-center bg-[#141210] text-[#FAF8F5] overflow-hidden pt-20"
           >
-            <div className="absolute inset-0">
-              {homepage.heroVideoUrl ? (
+            <div className="absolute inset-0 overflow-hidden">
+              {/* Static poster & reduced-motion / slow-network fallback layer */}
+              <StudioImage
+                src={homepage.heroImage}
+                alt="Twins Twins Video Pro luxury wedding photography & cinema"
+                loading="eager"
+                className="w-full h-full object-cover object-center"
+              />
+
+              {/* Full-width responsive promotional background video */}
+              {!prefersReducedMotion && !videoError && heroVideoSrc && (
                 <video
-                  src={homepage.heroVideoUrl}
-                  poster={homepage.heroImage}
+                  ref={videoRef}
+                  key={heroVideoSrc}
+                  src={heroVideoSrc}
+                  poster={heroPosterSrc}
                   autoPlay
                   muted
                   loop
                   playsInline
-                  className="w-full h-full object-cover object-center"
-                />
-              ) : (
-                <StudioImage
-                  src={https://zdfqyjebx7trl30q.public.blob.vercel-storage.com/Create_video_for_wedding_photogr%E2%80%A6_19ebbf06.mp4}
-                  alt="Bride and groom embracing at golden hour in South Australia"
-                  loading="eager"
-                  className="w-full h-full object-cover object-center"
+                  preload="auto"
+                  aria-hidden="true"
+                  onLoadedData={() => setVideoReady(true)}
+                  onCanPlay={() => setVideoReady(true)}
+                  onError={() => setVideoError(true)}
+                  className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${
+                    videoReady ? 'opacity-100' : 'opacity-0'
+                  }`}
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#141210]/90 via-[#141210]/45 to-[#141210]/35" />
+
+              {/* Subtle dark cinematic overlays for crisp ivory & champagne gold legibility */}
+              <div className="absolute inset-0 bg-[#141210]/30" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#141210]/90 via-[#141210]/45 to-[#141210]/40" />
               <div className="absolute inset-0 bg-gradient-to-r from-[#141210]/75 via-[#141210]/30 to-transparent" />
             </div>
 

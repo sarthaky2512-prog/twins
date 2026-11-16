@@ -182,6 +182,38 @@ function seedInitialData(db: DatabaseSync): void {
     secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
   });
 
+  // One-time upgrade for existing SQLite databases seeded prior to hero promotional video
+  const heroVideoMig = db
+    .prepare('SELECT key FROM cms_documents WHERE key = ?')
+    .get('migration_hero_video_v1');
+  if (!heroVideoMig) {
+    const row = db
+      .prepare('SELECT value_json FROM cms_documents WHERE key = ?')
+      .get('homepage') as { value_json: string } | undefined;
+    if (row) {
+      try {
+        const home = JSON.parse(row.value_json);
+        if (!home.heroVideoUrl) {
+          home.heroVideoUrl = DEFAULT_HOMEPAGE_CONTENT.heroVideoUrl;
+          home.heroSubheading = DEFAULT_HOMEPAGE_CONTENT.heroSubheading;
+          home.heroSupportingText = DEFAULT_HOMEPAGE_CONTENT.heroSupportingText;
+          db.prepare('UPDATE cms_documents SET value_json = ?, updated_at = ? WHERE key = ?').run(
+            JSON.stringify(home),
+            now,
+            'homepage'
+          );
+        }
+      } catch {
+        // ignore parse edge case
+      }
+    }
+    db.prepare('INSERT INTO cms_documents (key, value_json, updated_at) VALUES (?, ?, ?)').run(
+      'migration_hero_video_v1',
+      JSON.stringify({ appliedAt: now }),
+      now
+    );
+  }
+
   const count = (table: string) =>
     (db.prepare(`SELECT COUNT(*) AS c FROM ${table}`).get() as { c: number }).c;
 

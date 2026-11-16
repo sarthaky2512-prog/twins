@@ -87,11 +87,12 @@ export const DEFAULT_FOOTER: FooterConfig = {
 
 export const DEFAULT_HOMEPAGE_CONTENT: HomepageContent = {
   heroHeading: 'CAPTURING YOUR LOVE STORY, ONE BEAUTIFUL MOMENT AT A TIME.',
-  heroSubheading: 'Luxury Wedding Photography & Cinematic Films · South Australia',
+  heroSubheading: 'TWINS TWINS VIDEO PRO',
   heroSupportingText:
-    'Your wedding day is more than an event. It is a story filled with love, emotions, laughter, and unforgettable memories. At Twins Twins Video Pro, we capture every special moment through beautiful photography and cinematic wedding films.',
+    'Your wedding day deserves to be remembered forever. We capture every beautiful moment through professional photography and cinematic wedding films.',
   heroImage: 'img://hero',
-  heroVideoUrl: '',
+  heroVideoUrl:
+    'https://zdfqyjebx7trl30q.public.blob.vercel-storage.com/Create_video_for_wedding_photogr%E2%80%A6_19ebbf06.mp4',
   heroPrimaryCtaLabel: 'EXPLORE OUR WORK',
   heroPrimaryCtaHref: '#home-portfolio-anchor',
   heroSecondaryCtaLabel: 'BOOK YOUR WEDDING',
